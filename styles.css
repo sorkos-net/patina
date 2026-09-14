@@ -62,15 +62,24 @@ a:focus-visible {
 }
 
 .header {
-  min-height: 72px;
+  min-height: 80px;
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   color: var(--text-strong);
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 650;
   letter-spacing: -0.02em;
   text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: 72px;
+  height: 72px;
 }
 
 .navigation {
@@ -86,9 +95,9 @@ a:focus-visible {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  grid-template-columns: minmax(340px, 0.82fr) minmax(520px, 1.18fr);
   align-items: center;
-  gap: clamp(56px, 10vw, 148px);
+  gap: clamp(48px, 6vw, 84px);
   padding-block: 52px 72px;
 }
 
@@ -134,19 +143,76 @@ h1 {
   transform: translateY(1px);
 }
 
-.product-mark {
+.product-visual {
   justify-self: end;
-  width: min(100%, 390px);
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--surface);
+  width: min(100%, 680px);
+  display: grid;
+  gap: 34px;
 }
 
-.product-mark img {
+.product-preview {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  background: var(--surface);
+  box-shadow: 0 20px 52px rgb(0 0 0 / 0.3);
+}
+
+.product-preview::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 12px -12px -12px 12px;
+  border-right: 1px solid color-mix(in srgb, var(--accent) 52%, var(--line));
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 52%, var(--line));
+}
+
+.product-preview img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+}
+
+.download-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.download-link {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 16px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.download-link small {
+  color: rgb(255 255 255 / 0.76);
+  font-size: 0.72rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.download-link[aria-disabled="true"] {
+  cursor: default;
+}
+
+.download-link[href]:hover {
+  border-color: #63a2fa;
+  background: #2777e7;
+  color: #ffffff;
+}
+
+.download-link[href]:active {
+  transform: translateY(1px);
 }
 
 .footer {
@@ -197,13 +263,28 @@ h1 {
   font-size: 0.875rem !important;
 }
 
+@media (max-width: 960px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .product-visual {
+    justify-self: start;
+  }
+}
+
 @media (max-width: 760px) {
   .page {
     width: min(100% - 36px, 640px);
   }
 
   .header {
-    min-height: 64px;
+    min-height: 72px;
+  }
+
+  .brand img {
+    width: 60px;
+    height: 60px;
   }
 
   .navigation {
@@ -220,10 +301,23 @@ h1 {
     font-size: clamp(2.65rem, 13vw, 4.4rem);
   }
 
-  .product-mark {
+  .product-visual {
     grid-row: 1;
     justify-self: start;
-    width: 88px;
+    width: calc(100% - 12px);
+  }
+
+  .product-preview {
+    overflow: hidden;
+  }
+
+  .product-preview img {
+    width: 620px;
+    max-width: none;
+  }
+
+  .download-links {
+    grid-template-columns: 1fr;
   }
 
   .footer {

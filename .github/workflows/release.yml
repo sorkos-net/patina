@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.ref_name }}
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+      CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+      CWS_EXTENSION_ID: ${{ secrets.CWS_EXTENSION_ID }}
+      WEB_EXT_API_KEY: ${{ secrets.AMO_JWT_ISSUER }}
+      WEB_EXT_API_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify, test, and build
+        run: |
+          node scripts/check-version.mjs "$VERSION"
+          npm run check
+
+      - name: Package browser builds
+        run: |
+          mkdir -p artifacts
+          (cd dist/chrome && zip -qr "../../artifacts/patina-chrome-${VERSION}.zip" .)
+          (cd dist/firefox && zip -qr "../../artifacts/patina-firefox-${VERSION}.zip" .)
+
+      - name: Generate conventional-commit release notes
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+
+      - name: Publish to Firefox Add-ons
+        if: env.WEB_EXT_API_KEY != '' && env.WEB_EXT_API_SECRET != ''
+        run: |
+          npx --yes web-ext@8 sign \
+            --source-dir dist/firefox \
+            --artifacts-dir artifacts \
+            --channel listed \
+            --amo-metadata release/amo-metadata.json \
+            --approval-timeout 0
+
+      - name: Get Chrome Web Store access token
+        if: env.CWS_CLIENT_ID != '' && env.CWS_CLIENT_SECRET != '' && env.CWS_REFRESH_TOKEN != '' && env.CWS_PUBLISHER_ID != '' && env.CWS_EXTENSION_ID != ''
+        id: cws-token
+        run: |
+          token=$(curl --fail --silent --show-error https://oauth2.googleapis.com/token \
+            --data-urlencode "client_id=${CWS_CLIENT_ID}" \
+            --data-urlencode "client_secret=${CWS_CLIENT_SECRET}" \
+            --data-urlencode "refresh_token=${CWS_REFRESH_TOKEN}" \
+            --data-urlencode "grant_type=refresh_token" | jq -r .access_token)
+          test -n "$token" && test "$token" != "null"
+          echo "token=$token" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Chrome Web Store
+        if: steps.cws-token.outcome == 'success'
+        env:
+          CWS_ACCESS_TOKEN: ${{ steps.cws-token.outputs.token }}
+        run: |
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${CWS_ACCESS_TOKEN}" \
+            -X POST \
+            -T "artifacts/patina-chrome-${VERSION}.zip" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:upload"
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer ${CWS_ACCESS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d '{"publishType":"DEFAULT_PUBLISH"}' \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:publish"
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.git-cliff.outputs.content }}
+          files: artifacts/*

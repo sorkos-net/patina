@@ -1,0 +1,7 @@
+dist/
+artifacts/
+node_modules/
+web-ext-artifacts/
+
+PRODUCT.md
+DESIGN.md

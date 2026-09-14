@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Patina",
+  "version": "0.1.0",
+  "description": "See the age of old tabs at the beginning of their titles.",
+  "permissions": ["alarms", "sessions", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["shared/time.js", "background.js"]
+  },
+  "action": {
+    "default_title": "Open Patina settings",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["shared/time.js", "shared/title.js", "content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "patina@open-source.extensions",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

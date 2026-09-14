@@ -1,0 +1,16 @@
+{
+  "name": "patina-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "See the age of old tabs at the beginning of their titles.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test --experimental-test-isolation=none",
+    "check": "npm run test && npm run build && node scripts/check-build.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}

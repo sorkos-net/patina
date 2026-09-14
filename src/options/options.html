@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Patina settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <!--
+    THESIS: Age should feel like quiet metadata, not a dashboard; this surface refuses settings-card clutter.
+    OWN-WORLD: Cool paper grey, ink, moss accent, square pixel details, and crisp one-pixel rules.
+    STORY: Understand Patina, set three choices, see the exact title result, and leave.
+    FIRST VIEWPORT: A narrow single column with masthead, live tab specimen, then an uninterrupted settings form.
+    FORM: Compact browser utility, directly shaped from the pinned brief; seed key: patina-tab-edge.
+    FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+  -->
+  <main class="shell">
+    <header class="masthead">
+      <img src="../icons/icon-96.png" width="48" height="48" alt="">
+      <div>
+        <h1>Patina</h1>
+        <p>Let old tabs show their age.</p>
+      </div>
+    </header>
+
+    <section class="preview" aria-labelledby="preview-label">
+      <span id="preview-label">Tab preview</span>
+      <output id="preview" aria-live="polite">5d · Page title</output>
+    </section>
+
+    <form id="settings" novalidate>
+      <fieldset>
+        <legend>Show indicator when tab age reaches</legend>
+        <div class="threshold-row">
+          <label class="sr-only" for="threshold-value">Threshold value</label>
+          <input id="threshold-value" name="thresholdValue" type="number" min="1" max="999" step="1" inputmode="numeric" required>
+          <label class="sr-only" for="threshold-unit">Threshold unit</label>
+          <select id="threshold-unit" name="thresholdUnit">
+            <option value="minutes">minutes</option>
+            <option value="hours">hours</option>
+            <option value="days">days</option>
+          </select>
+        </div>
+        <p class="error" id="threshold-error" role="alert"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Age means</legend>
+        <label class="choice"><input type="radio" name="ageMode" value="opened"> <span>Since tab was opened<small>Navigation, reload, and viewing do not reset it.</small></span></label>
+        <label class="choice"><input type="radio" name="ageMode" value="viewed"> <span>Since tab was last viewed<small>Resets when the tab becomes active.</small></span></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Indicator</legend>
+        <label class="choice"><input type="radio" name="indicatorMode" value="relative"> <span>Relative age<small>Chooses minutes, hours, days, weeks, or months.</small></span></label>
+        <label class="choice"><input type="radio" name="indicatorMode" value="custom"> <span>Custom text</span></label>
+        <div class="custom-row" id="custom-row" hidden>
+          <label for="custom-text">Text, emoji, or template</label>
+          <input id="custom-text" name="customText" type="text" maxlength="64" autocomplete="off" placeholder="stale {{age}}" aria-describedby="custom-help emoji-help custom-error">
+          <p class="template-help" id="custom-help">Variables: <code>{{age}}</code> → 5d, <code>{{age_number}}</code> → 5, <code>{{age_unit}}</code> → d</p>
+          <p class="emoji-help" id="emoji-help" hidden></p>
+          <p class="error" id="custom-error" role="alert"></p>
+        </div>
+      </fieldset>
+    </form>
+
+    <footer><span id="save-state" role="status">Saved locally</span><span>No data leaves your browser</span></footer>
+  </main>
+  <script src="../shared/time.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

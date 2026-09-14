@@ -1,0 +1,11 @@
+{
+  "categories": {
+    "firefox": ["tabs"]
+  },
+  "summary": {
+    "en-US": "See the age of old tabs at the beginning of their titles."
+  },
+  "version": {
+    "license": "MIT"
+  }
+}
